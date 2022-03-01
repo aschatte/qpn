@@ -4,8 +4,8 @@
 * @ingroup qfn
 * @cond
 ******************************************************************************
-* Last updated for version 6.8.2
-* Last updated on  2020-03-08
+* Last updated for version 6.6.0
+* Last updated on  2019-10-04
 *
 *                    Q u a n t u m  L e a P s
 *                    ------------------------
@@ -44,6 +44,23 @@
 Q_DEFINE_THIS_MODULE("qfn")
 
 /* Global-scope objects *****************************************************/
+
+/**
+* @description
+* This variable captures result of latest QACTIVE_POST call for the application.
+ * When a call is make to post and event this variables is assigned the result.
+ * In applications which do not stop when a posting error occurs, this value
+ * can be interrogated to determine whether a posting error occurred, or not,
+ * and appropriate action taken.  An example of this is:
+ *
+ *  QACTIVE_POST_X_ISR(AO_TimeBomb, QF_NO_MARGIN, BUTTON2_RELEASED_SIG);
+ *  if (!QACTIVE_POST_res_) Q_ERROR();  // Post did not occur, no room.
+ *
+ * The non-QACTIVE_POST_X methods use the QF_NO_MARGIN macro to throw an
+ * assertion on failure.  If this is acceptable, the QACTIVE_POST_res_ variable
+ * need not be queried.
+*/
+uint_fast8_t volatile QACTIVE_POST_res_;
 
 /**
 * @description
@@ -92,18 +109,25 @@ uint8_t const Q_ROM QF_log2Lkup[16] = {
 };
 #endif /* QF_LOG2 */
 
+#ifdef __Hsm_H
+#else
+    #ifdef NO_QActiveVtable
+    #else
+        QActiveVtable const vtable = { /* QActive virtual table */
+            { &QHsm_init_,
+              &QHsm_dispatch_
+             },
+            &QActive_postX_,
+            &QActive_postXISR_
+        };
+    #endif  //  #ifdef NO_QActiveVtable
+#endif  //  #ifdef __Hsm_H
+
 /****************************************************************************/
 /**
 * @protected @memberof QActive
 */
 void QActive_ctor(QActive * const me, QStateHandler initial) {
-    static QActiveVtable const vtable = { /* QActive virtual table */
-        { &QHsm_init_,
-          &QHsm_dispatch_ },
-        &QActive_postX_,
-        &QActive_postXISR_
-    };
-
     /**
     * @note QActive inherits QActive, so by the @ref oop convention
     * it should call the constructor of the superclass, i.e., QActive_ctor().
@@ -113,8 +137,15 @@ void QActive_ctor(QActive * const me, QStateHandler initial) {
     * not used in a given project, the call to QHsm_ctor() avoids pulling
     * in the code for QHsm.
     */
+#ifdef __Hsm_H
+    Hsm_ctor(&me->super, initial);
+#else
     QHsm_ctor(&me->super, initial);
-    me->super.vptr = &vtable.super; /* hook the vptr to QActive vtable */
+    #ifndef NO_QActiveVtable
+        me->super.vptr = &vtable.super; /* hook the vptr to QActive vtable */
+    #else
+    #endif  //  #ifndef NO_QActiveVtable
+#endif  //  #ifdef __Hsm_H
 }
 
 /****************************************************************************/
@@ -140,13 +171,14 @@ void QActive_ctor(QActive * const me, QStateHandler initial) {
 * @include qfn_postx.c
 */
 #if (Q_PARAM_SIZE != 0U)
-bool QActive_postX_(QActive * const me, uint_fast8_t margin,
+bool QActive_postX_(void *me2, uint_fast8_t margin,
                     enum_t const sig, QParam const par)
 #else
-bool QActive_postX_(QActive * const me, uint_fast8_t margin,
+bool QActive_postX_(void *me2, uint_fast8_t margin,
                     enum_t const sig)
 #endif
 {
+    QActive *me = (QActive *)me2;
     QActiveCB const Q_ROM *acb = &QF_active[me->prio];
     uint_fast8_t qlen = Q_ROM_BYTE(acb->qlen);
     bool can_post;
@@ -189,7 +221,7 @@ bool QActive_postX_(QActive * const me, uint_fast8_t margin,
         if (me->nUsed == 1U) {
 
             /* set the corresponding bit in the ready set */
-            QF_readySet_ |= (uint_fast8_t)1 << (me->prio - 1U);
+            QF_readySet_ |= 1U << (uint_fast8_t)(me->prio - 1U); /* C90 warning */
 
 #ifdef qkn_h
             if (QK_sched_() != 0U) {
@@ -198,6 +230,7 @@ bool QActive_postX_(QActive * const me, uint_fast8_t margin,
 #endif
         }
     }
+    QACTIVE_POST_res_ = can_post;
     QF_INT_ENABLE();
 
     return can_post;
@@ -226,13 +259,14 @@ bool QActive_postX_(QActive * const me, uint_fast8_t margin,
 * @include qfn_postx.c
 */
 #if (Q_PARAM_SIZE != 0U)
-bool QActive_postXISR_(QActive * const me, uint_fast8_t margin,
+bool QActive_postXISR_(void *me2, uint_fast8_t margin,
                        enum_t const sig, QParam const par)
 #else
-bool QActive_postXISR_(QActive * const me, uint_fast8_t margin,
+bool QActive_postXISR_(void *me2, uint_fast8_t margin,
                        enum_t const sig)
 #endif
 {
+    QActive *me = (QActive *)me2;
 #ifdef QF_ISR_NEST
 #ifdef QF_ISR_STAT_TYPE
     QF_ISR_STAT_TYPE stat;
@@ -284,9 +318,10 @@ bool QActive_postXISR_(QActive * const me, uint_fast8_t margin,
         /* is this the first event? */
         if (me->nUsed == 1U) {
             /* set the bit */
-            QF_readySet_ |= (uint_fast8_t)1 << (me->prio - 1U);
+            QF_readySet_ |= 1U << (uint_fast8_t)(me->prio - 1U); /* C90 warning */
         }
     }
+    QACTIVE_POST_res_ = can_post;
 
 #ifdef QF_ISR_NEST
 #ifdef QF_ISR_STAT_TYPE
@@ -416,10 +451,13 @@ void QF_tickXISR(uint_fast8_t const tickRate) {
 #endif /* QF_TIMEEVT_USAGE */
 
 #if (Q_PARAM_SIZE != 0)
-                QACTIVE_POST_ISR(a, (enum_t)Q_TIMEOUT_SIG + (enum_t)tickRate,
+//                QACTIVE_POST_ISR(a, (enum_t)Q_TIMEOUT_SIG + (enum_t)tickRate, /* works for C90, fails for C99 */
+//                                 0U);
+                QACTIVE_POST_ISR(a, Q_TIMEOUT_SIG + tickRate,   /* works for C90 & C99*/
                                  0U);
 #else
-                QACTIVE_POST_ISR(a, (enum_t)Q_TIMEOUT_SIG + (enum_t)tickRate);
+//                QACTIVE_POST_ISR(a, (enum_t)Q_TIMEOUT_SIG + (enum_t)tickRate); /* works for C90, fails for C99 */
+                QACTIVE_POST_ISR(a, Q_TIMEOUT_SIG + tickRate);  /* works for C90 & C99*/
 #endif /* (Q_PARAM_SIZE != 0U) */
             }
         }
@@ -473,7 +511,7 @@ void QActive_armX(QActive * const me, uint_fast8_t const tickRate,
 #endif /* QF_TIMEEVT_PERIODIC */
 
 #ifdef QF_TIMEEVT_USAGE
-    /* set a bit in QF_timerSetX_[] to rememer that the timer is running */
+    /* set a bit in QF_timerSetX_[] to remember that the timer is running */
     QF_timerSetX_[tickRate] |= (uint_fast8_t)1 << (me->prio - 1U);
 #endif
     QF_INT_ENABLE();
@@ -500,7 +538,7 @@ void QActive_disarmX(QActive * const me, uint_fast8_t const tickRate) {
 #endif /* QF_TIMEEVT_PERIODIC */
 
 #ifdef QF_TIMEEVT_USAGE
-    /* clear a bit in QF_timerSetX_[] to rememer that timer is not running */
+    /* clear a bit in QF_timerSetX_[] to remember that timer is not running */
     QF_timerSetX_[tickRate] &= (uint_fast8_t)(~(1U << (me->prio - 1U)));
 #endif
     QF_INT_ENABLE();

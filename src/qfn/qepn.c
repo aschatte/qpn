@@ -4,8 +4,8 @@
 * @ingroup qep
 * @cond
 ******************************************************************************
-* Last updated for version 6.8.2
-* Last updated on  2020-03-08
+* Last updated for version 6.6.0
+* Last updated on  2019-10-04
 *
 *                    Q u a n t u m  L e a P s
 *                    ------------------------
@@ -57,7 +57,7 @@ char_t const Q_ROM QP_versionStr[7] = QP_VERSION_STR;
 #define QHSM_MAX_NEST_DEPTH_  ((int_fast8_t)5)
 
 /*! helper function to execute a transition chain in HSM */
-static int_fast8_t QHsm_tran_(QHsm * const me,
+static int_fast8_t QHsm_tran_(void *me,
                               QStateHandler path[QHSM_MAX_NEST_DEPTH_]);
 
 /****************************************************************************/
@@ -82,11 +82,13 @@ static int_fast8_t QHsm_tran_(QHsm * const me,
 * @include qepn_qhsm_ctor.c
 */
 void QHsm_ctor(QHsm * const me, QStateHandler initial) {
-    static QHsmVtable const vtable = { /* QHsm virtual table */
-        &QHsm_init_,
-        &QHsm_dispatch_
-    };
-    me->vptr  = &vtable;
+    #ifndef NO_QActiveVtable
+        static QHsmVtable const vtable = { /* QHsm virtual table */
+            &QHsm_init_,
+            &QHsm_dispatch_
+        };
+        me->vptr  = &vtable;
+    #endif  //  #ifndef NO_QActiveVtable
     me->state = Q_STATE_CAST(&QHsm_top);
     me->temp  = initial;
 }
@@ -102,7 +104,8 @@ void QHsm_ctor(QHsm * const me, QStateHandler initial) {
 * @note
 * Must be called only ONCE after the QHsm_ctor().
 */
-void QHsm_init_(QHsm * const me) {
+void QHsm_init_(void *me2) {
+    QHsm *me = (QHsm *)me2;
     QStateHandler t = me->state;
     QState r;
 
@@ -110,9 +113,14 @@ void QHsm_init_(QHsm * const me) {
     * transition must be initialized, and the initial transition must not
     * be taken yet.
     */
-    Q_REQUIRE_ID(200, (me->vptr != (QHsmVtable const *)0)
-                      && (me->temp != Q_STATE_CAST(0))
-                      && (t == Q_STATE_CAST(&QHsm_top)));
+    #ifdef NO_QActiveVtable
+        Q_REQUIRE_ID(200, (me->temp != Q_STATE_CAST(0))
+                          && (t == Q_STATE_CAST(&QHsm_top)));
+    #else
+        Q_REQUIRE_ID(200, (me->vptr != (QHsmVtable const *)0)
+                          && (me->temp != Q_STATE_CAST(0))
+                          && (t == Q_STATE_CAST(&QHsm_top)));
+    #endif  //  #ifdef NO_QActiveVtable
 
     r = (*me->temp)(me); /* execute the top-most initial transition */
 
@@ -130,7 +138,7 @@ void QHsm_init_(QHsm * const me) {
         while (me->temp != t) {
             ++ip;
             Q_ASSERT_ID(220, ip < (int_fast8_t)Q_DIM(path));
-            path[ip] = me->temp;
+            path[(uint_fast8_t)ip] = me->temp;  /*The (uint_fast8_t) cast removes an xc8 warning */
             (void)(*me->temp)(me);
         }
         me->temp = path[0];
@@ -138,7 +146,7 @@ void QHsm_init_(QHsm * const me) {
         /* retrace the entry path in reverse (desired) order... */
         Q_SIG(me) = Q_ENTRY_SIG;
         do {
-            (void)(*path[ip])(me); /* enter path[ip] */
+            (void)(*path[(uint_fast8_t)ip])(me); /* enter path[ip] */   /*The (uint_fast8_t) cast removes an xc8 warning */
             --ip;
         } while (ip >= 0);
 
@@ -187,7 +195,8 @@ QState QHsm_top(void const * const me) {
 * This function should be called only via the virtual table (see
 * QHSM_DISPATCH()) and should NOT be called directly in the applications.
 */
-void QHsm_dispatch_(QHsm * const me) {
+void QHsm_dispatch_(void *me2) {
+    QHsm *me = (QHsm *)me2;
     QStateHandler t = me->state;
     QStateHandler s;
     QState r;
@@ -206,7 +215,7 @@ void QHsm_dispatch_(QHsm * const me) {
 
         if (r == Q_RET_UNHANDLED) { /* unhandled due to a guard? */
             iq = (int_fast8_t)Q_SIG(me); /* save the original signal */
-            Q_SIG(me) = QEP_EMPTY_SIG_; /* find the superstate */
+            Q_SIG(me) = (QSignal)QEP_EMPTY_SIG_; /* find the superstate */
             r = (*s)(me); /* invoke state handler s */
             Q_SIG(me) = (QSignal)iq; /* restore the original signal */
         }
@@ -237,7 +246,7 @@ void QHsm_dispatch_(QHsm * const me) {
         /* retrace the entry path in reverse (desired) order... */
         Q_SIG(me) = Q_ENTRY_SIG;
         for (; ip >= 0; --ip) {
-            (void)(*path[ip])(me); /* enter path[ip] */
+            (void)(*path[(uint_fast8_t)ip])(me); /* enter path[ip] */   /*The (uint_fast8_t) cast removes an xc8 warning */
         }
         t = path[0];      /* stick the target into register */
         me->temp = t; /* update the current state */
@@ -252,7 +261,7 @@ void QHsm_dispatch_(QHsm * const me) {
             (void)(*me->temp)(me); /* find the superstate */
             while (me->temp != t) {
                 ++ip;
-                path[ip] = me->temp;
+                path[(uint_fast8_t)ip] = me->temp;  /*The (uint_fast8_t) cast removes an xc8 warning */
                 (void)(*me->temp)(me); /* find the superstate */
             }
             me->temp = path[0];
@@ -263,7 +272,7 @@ void QHsm_dispatch_(QHsm * const me) {
             /* retrace the entry path in reverse (correct) order... */
             Q_SIG(me) = Q_ENTRY_SIG;
             do {
-                (void)(*path[ip])(me); /* enter path[ip] */
+                (void)(*path[(uint_fast8_t)ip])(me); /* enter path[ip] */  /*The (uint_fast8_t) cast removes an xc8 warning */
                 --ip;
             } while (ip >= 0);
 
@@ -289,9 +298,10 @@ void QHsm_dispatch_(QHsm * const me) {
 * @returns
 * the depth of the entry path stored in the @p path parameter.
 */
-static int_fast8_t QHsm_tran_(QHsm * const me,
+static int_fast8_t QHsm_tran_(void *me2,
                               QStateHandler path[QHSM_MAX_NEST_DEPTH_])
 {
+    QHsm * me= (QHsm *)me2;
     int_fast8_t ip = (int_fast8_t)(-1); /* transition entry path index */
     int_fast8_t iq; /* helper transition entry path index */
     QStateHandler t = path[0];
@@ -447,9 +457,10 @@ static int_fast8_t QHsm_tran_(QHsm * const me,
 * @sa
 * QHsm_childState()
 */
-QStateHandler QHsm_childState_(QHsm * const me,
+QStateHandler QHsm_childState_(void *me2,
                                QStateHandler const parent)
 {
+    QHsm * me= (QHsm *)me2;
     QStateHandler child = me->state; /* start with the current state */
     bool isFound = false; /* start with the child not found */
     QState r;

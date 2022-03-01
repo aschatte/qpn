@@ -3,8 +3,8 @@
 * @brief QF-nano port ARM Cortex-M, cooperative QV kernel, ARM-CLANG toolset
 * @cond
 ******************************************************************************
-* Last Updated for Version: 6.8.0
-* Date of the Last Update:  2020-03-31
+* Last Updated for Version: 6.3.7
+* Date of the Last Update:  2018-12-05
 *
 *                    Q u a n t u m  L e a P s
 *                    ------------------------
@@ -39,15 +39,18 @@
 #ifndef QFN_PORT_H
 #define QFN_PORT_H
 
-/*! no-return function specifier (ARM-Clang/LLVM compiler) */
-#define Q_NORETURN   __attribute__ ((noreturn)) void
-
 /* QF interrupt disable/enable and log2()... */
 #if (__ARM_ARCH == 6) /* Cortex-M0/M0+/M1 ?, see NOTE1 */
 
     /* Cortex-M0/M0+/M1(v6-M, v6S-M) interrupt disabling policy, see NOTE2 */
     #define QF_INT_DISABLE()    __asm volatile ("cpsid i")
     #define QF_INT_ENABLE()     __asm volatile ("cpsie i")
+
+   /* QF critical section entry/exit, see NOTE02. 
+      This is included here to allow QEQueue usage in transition.  */
+   /* QF_CRIT_STAT_TYPE not defined: unconditional interrupt unlocking" policy */
+   #define QF_CRIT_ENTRY(dummy)    QF_INT_DISABLE()
+   #define QF_CRIT_EXIT(dummy)     QF_INT_ENABLE()
 
     /* QF-aware ISR priority for CMSIS function NVIC_SetPriority(), NOTE1 */
     #define QF_AWARE_ISR_CMSIS_PRI 0
@@ -67,6 +70,12 @@
     /* Cortex-M3/M4 interrupt disabling policy */
     #define QF_INT_DISABLE()     QF_SET_BASEPRI(QF_BASEPRI)
     #define QF_INT_ENABLE()      QF_SET_BASEPRI(0U)
+
+   /* QF critical section entry/exit, see NOTE02. 
+      This is included here to allow QEQueue usage in transition.  */
+   /* QF_CRIT_STAT_TYPE not defined: unconditional interrupt unlocking" policy */
+   #define QF_CRIT_ENTRY(dummy)    QF_INT_DISABLE()
+   #define QF_CRIT_EXIT(dummy)     QF_INT_ENABLE()
 
     /* BASEPRI threshold for "QF-aware" interrupts, see NOTE2 */
     #define QF_BASEPRI           0x3F
@@ -100,6 +109,7 @@
 #include <stdint.h>     /* Exact-width types. WG14/N843 C99 Standard */
 #include <stdbool.h>    /* Boolean type.      WG14/N843 C99 Standard */
 
+#include "Hsm.h"
 #include "qepn.h"       /* QEP-nano platform-independent public interface */
 #include "qfn.h"        /* QF-nano platform-independent public interface */
 #include "qvn.h"        /* QV-nano cooperative kernel interface */

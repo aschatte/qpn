@@ -1,0 +1,411 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<model version="5.1.1" links="1">
+ <!--${qpn}-->
+ <framework name="qpn"/>
+ <!--${AOs}-->
+ <package name="AOs" stereotype="0x02">
+  <!--${AOs::TimeBomb}-->
+  <class name="TimeBomb" superclass="qpn::QActive">
+   <!--${AOs::TimeBomb::te}-->
+   <attribute name="te? (QF_MAX_TICK_RATE == 0)" type="QTimer" visibility="0x00" properties="0x00"/>
+   <!--${AOs::TimeBomb::blink_ctr}-->
+   <attribute name="blink_ctr" type="uint32_t" visibility="0x00" properties="0x00"/>
+   <!--${AOs::TimeBomb::ctor}-->
+   <operation name="ctor" type="void" visibility="0x00" properties="0x00">
+    <code>QActive_ctor(&amp;(me-&gt;super), Q_STATE_CAST(&amp;TimeBomb_initial));
+//QTimeEvt_ctorX(&amp;me-&gt;te, &amp;me-&gt;super, TIMEOUT_SIG, 0U);</code>
+   </operation>
+   <!--${AOs::TimeBomb::SM}-->
+   <statechart properties="0x01">
+    <!--${AOs::TimeBomb::SM::initial}-->
+    <initial target="../1/5">
+     <initial_glyph conn="40,2,4,1,10,-4">
+      <action box="0,-2,10,2"/>
+     </initial_glyph>
+    </initial>
+    <!--${AOs::TimeBomb::SM::armed}-->
+    <state name="armed">
+     <exit brief="all-LEDs=OFF;">BSP_ledRedOff();
+BSP_ledGreenOff();
+BSP_ledBlueOff();</exit>
+     <!--${AOs::TimeBomb::SM::armed::initial}-->
+     <initial target="../5">
+      <initial_glyph conn="43,12,4,1,4,-7">
+       <action box="0,-2,10,2"/>
+      </initial_glyph>
+     </initial>
+     <!--${AOs::TimeBomb::SM::armed::BUTTON2_PRESSED}-->
+     <tran trig="BUTTON2_PRESSED" target="../../2">
+      <tran_glyph conn="56,38,1,2,12,-13">
+       <action box="0,-2,16,2"/>
+      </tran_glyph>
+     </tran>
+     <!--${AOs::TimeBomb::SM::armed::blink}-->
+     <state name="blink">
+      <entry brief="RedLED=ON;arm-TE-for-1/2sec;">BSP_ledRedOn();
+#if (QF_MAX_TICK_RATE == 0)
+    me-&gt;te.nTicks = BSP_TICKS_PER_SEC/2;    // This is the arm for TIMEOUT_SIG
+#else
+    #ifndef QF_TIMEEVT_PERIODIC
+        QActive_armX(&amp;(me-&gt;super), 0U, BSP_TICKS_PER_SEC/2);    // This is the arm for Q_TIMEOUT_SIG.
+    #else
+        QActive_armX(&amp;(me-&gt;super), 0U, BSP_TICKS_PER_SEC/2, BSP_TICKS_PER_SEC/2);
+    #endif  //  #ifndef QF_TIMEEVT_PERIODIC
+#endif    //    #if (QF_MAX_TICK_RATE == 0)</entry>
+      <exit brief="RedLED=OFF;">BSP_ledRedOff();</exit>
+      <!--${AOs::TimeBomb::SM::armed::blink::Q_TIMEOUT}-->
+      <tran trig="Q_TIMEOUT? (QF_MAX_TICK_RATE != 0)" target="../../3">
+       <tran_glyph conn="4,42,3,1,38,10,-6">
+        <action box="0,-2,10,2"/>
+       </tran_glyph>
+      </tran>
+      <!--${AOs::TimeBomb::SM::armed::blink::TIMEOUT}-->
+      <tran trig="TIMEOUT? (QF_MAX_TICK_RATE == 0)">
+       <!--${AOs::TimeBomb::SM::armed::blink::TIMEOUT::[te.nTicks>0]}-->
+       <choice>
+        <guard brief="te.nTicks &gt; 0">me-&gt;te.nTicks &gt; 0</guard>
+        <action brief="--te.nTicks">--(me-&gt;te.nTicks);</action>
+        <!--${AOs::TimeBomb::SM::armed::blink::TIMEOUT::[te.nTicks>0]::[te.nTicks==0]}-->
+        <choice target="../../../../3">
+         <guard brief="te.nTicks == 0">me-&gt;te.nTicks == 0</guard>
+         <choice_glyph conn="25,39,5,1,17,13,-6">
+          <action box="1,-2,10,2"/>
+         </choice_glyph>
+        </choice>
+        <choice_glyph conn="14,39,5,-1,11">
+         <action box="1,-2,10,4"/>
+        </choice_glyph>
+       </choice>
+       <tran_glyph conn="4,39,3,-1,10">
+        <action box="0,-2,10,2"/>
+       </tran_glyph>
+      </tran>
+      <state_glyph node="4,31,32,13">
+       <entry box="1,2,27,2"/>
+       <exit box="1,4,14,2"/>
+      </state_glyph>
+     </state>
+     <!--${AOs::TimeBomb::SM::armed::pause}-->
+     <state name="pause">
+      <entry brief="arm TE for1/2sec;">#if (QF_MAX_TICK_RATE == 0)
+    me-&gt;te.nTicks = BSP_TICKS_PER_SEC/2;    // This is the arm for TIMEOUT_SIG
+#else
+    #ifndef QF_TIMEEVT_PERIODIC
+        QActive_armX(&amp;(me-&gt;super), 0U, BSP_TICKS_PER_SEC/2);    // This is the arm for Q_TIMEOUT_SIG.
+    #else
+        QActive_armX(&amp;(me-&gt;super), 0U, BSP_TICKS_PER_SEC/2, BSP_TICKS_PER_SEC/2);    // This is the arm for Q_TIMEOUT_SIG.
+    #endif  //  #ifndef QF_TIMEEVT_PERIODIC
+#endif    //    #if (QF_MAX_TICK_RATE == 0)</entry>
+      <!--${AOs::TimeBomb::SM::armed::pause::Q_TIMEOUT}-->
+      <tran trig="Q_TIMEOUT? (QF_MAX_TICK_RATE != 0)">
+       <action brief="--blink_ctr;">--me-&gt;blink_ctr;</action>
+       <!--${AOs::TimeBomb::SM::armed::pause::Q_TIMEOUT::[blink_ctr>0]}-->
+       <choice target="../../../2">
+        <guard brief="blink_ctr &gt; 0">me-&gt;blink_ctr &gt; 0U</guard>
+        <choice_glyph conn="42,60,5,1,10,-26,-16">
+         <action box="1,-2,10,2"/>
+        </choice_glyph>
+       </choice>
+       <!--${AOs::TimeBomb::SM::armed::pause::Q_TIMEOUT::[else]}-->
+       <choice target="../../../4">
+        <guard brief="else"/>
+        <choice_glyph conn="42,60,4,1,12,-6">
+         <action box="0,0,10,2"/>
+        </choice_glyph>
+       </choice>
+       <tran_glyph conn="4,60,3,-1,38">
+        <action box="0,-2,17,2"/>
+       </tran_glyph>
+      </tran>
+      <!--${AOs::TimeBomb::SM::armed::pause::TIMEOUT}-->
+      <tran trig="TIMEOUT? (QF_MAX_TICK_RATE == 0)">
+       <!--${AOs::TimeBomb::SM::armed::pause::TIMEOUT::[te.nTicks>0]}-->
+       <choice>
+        <guard brief="te.nTicks &gt; 0">me-&gt;te.nTicks &gt; 0</guard>
+        <!--${AOs::TimeBomb::SM::armed::pause::TIMEOUT::[te.nTicks>0]::[te.nTicks)==0]}-->
+        <choice>
+         <guard brief="te.nTicks) == 0">--(me-&gt;te.nTicks) == 0</guard>
+         <action brief="--blick_ctr">--me-&gt;blink_ctr;</action>
+         <!--${AOs::TimeBomb::SM::armed::pause::TIMEOUT::[te.nTicks>0]::[te.nTicks)==0]::[blink_ctr>0]}-->
+         <choice target="../../../../../2">
+          <guard brief="blink_ctr &gt; 0">me-&gt;blink_ctr &gt; 0U</guard>
+          <choice_glyph conn="39,56,5,1,13,-22,-16">
+           <action box="1,-2,10,2"/>
+          </choice_glyph>
+         </choice>
+         <!--${AOs::TimeBomb::SM::armed::pause::TIMEOUT::[te.nTicks>0]::[te.nTicks)==0]::[else]}-->
+         <choice target="../../../../../4">
+          <guard brief="else"/>
+          <choice_glyph conn="39,56,4,1,16,-3">
+           <action box="0,0,10,2"/>
+          </choice_glyph>
+         </choice>
+         <choice_glyph conn="25,56,5,-1,14">
+          <action box="1,-2,11,4"/>
+         </choice_glyph>
+        </choice>
+        <choice_glyph conn="13,56,5,-1,12">
+         <action box="1,-2,10,4"/>
+        </choice_glyph>
+       </choice>
+       <tran_glyph conn="4,56,3,-1,9">
+        <action box="0,-2,10,2"/>
+       </tran_glyph>
+      </tran>
+      <state_glyph node="4,48,32,16">
+       <entry box="1,2,16,2"/>
+      </state_glyph>
+     </state>
+     <!--${AOs::TimeBomb::SM::armed::boom}-->
+     <state name="boom">
+      <entry brief="all-LEDs=ON;Send ^EVT:TRIG1 ">BSP_ledRedOn();
+BSP_ledGreenOn();
+BSP_ledBlueOn();
+#if (defined USE_FULL_TEST)
+    // Test posting a signal from outside of the ISR.
+    #if (QF_MARGIN == 0)
+        #if (Q_PARAM_SIZE != 0)
+            QACTIVE_POST(AO_TimeBomb, TRIG1_SIG, 0U);
+        #else
+            QACTIVE_POST(AO_TimeBomb, TRIG1_SIG);
+        #endif  //  #if (Q_PARAM_SIZE != 0)
+    #else
+        #if (Q_PARAM_SIZE != 0)
+            QACTIVE_POST_X(AO_TimeBomb, QF_MARGIN, TRIG1_SIG, 0U);
+        #else
+            QACTIVE_POST_X(AO_TimeBomb, QF_MARGIN, TRIG1_SIG);
+        #endif  //  #if (Q_PARAM_SIZE != 0)
+    #endif  //  #if (QF_MARGIN == 0)
+#endif    //    #if (defined USE_FULL_TEST)</entry>
+      <exit brief="Test timer disarm">#if (defined USE_FULL_TEST)
+    #if (QF_MAX_TICK_RATE &gt; 2)
+        QActive_disarmX(&amp;(me-&gt;super), 2U);    // Test repeated arm/disarm.
+    #endif    //    #if (QF_MAX_TICK_RATE &gt;1)
+#endif    //    #if (defined USE_FULL_TEST)</exit>
+      <!--${AOs::TimeBomb::SM::armed::boom::Q_TIMEOUT1}-->
+      <tran trig="Q_TIMEOUT1? (defined USE_FULL_TEST)">
+       <action>volatile uint16_t dummy = 1;
+#if ((QF_MAX_TICK_RATE &gt; 2) &amp;&amp; !(defined QF_TIMEEVT_PERIODIC))
+    Q_ERROR();
+#endif  //  #if ((QF_MAX_TICK_RATE &gt; 2) &amp;&amp; (defined QF_TIMEEVT_PERIODIC))</action>
+       <tran_glyph conn="4,78,3,-1,24">
+        <action box="0,-2,28,2"/>
+       </tran_glyph>
+      </tran>
+      <!--${AOs::TimeBomb::SM::armed::boom::Q_TIMEOUT2}-->
+      <tran trig="Q_TIMEOUT2? (defined USE_FULL_TEST)">
+       <action>QActive_disarmX(&amp;(me-&gt;super), 2U);
+QActive_armX(&amp;(me-&gt;super), 1U, BSP_TICKS_PER_SEC, BSP_TICKS_PER_SEC);</action>
+       <tran_glyph conn="4,80,3,-1,24">
+        <action box="0,-2,32,2"/>
+       </tran_glyph>
+      </tran>
+      <!--${AOs::TimeBomb::SM::armed::boom::TRIG1}-->
+      <tran trig="TRIG1? (defined USE_FULL_TEST)">
+       <action brief="Test event timers">//  Test event timers.
+#if (QF_MAX_TICK_RATE &gt; 1)
+    #ifndef QF_TIMEEVT_PERIODIC
+        QActive_armX(&amp;(me-&gt;super), 1U, BSP_TICKS_PER_SEC);    // Test repeated arm/disarm.
+    #else
+        QActive_armX(&amp;(me-&gt;super), 1U, BSP_TICKS_PER_SEC, 0U);    // Test repeated arm/disarm.
+    #endif  //  #ifndef QF_TIMEEVT_PERIODIC
+#endif    //    #if (QF_MAX_TICK_RATE != 1)
+#if ((QF_MAX_TICK_RATE &gt; 2) &amp;&amp; (defined QF_TIMEEVT_PERIODIC))
+    QActive_armX(&amp;(me-&gt;super), 2U, BSP_TICKS_PER_SEC/5, BSP_TICKS_PER_SEC/5);    // Test periodic rearm.
+#endif    //    #if (QF_MAX_TICK_RATE != 0)</action>
+       <tran_glyph conn="4,76,3,-1,24">
+        <action box="0,-2,19,2"/>
+       </tran_glyph>
+      </tran>
+      <state_glyph node="4,68,32,14">
+       <entry box="1,2,13,2"/>
+       <exit box="1,4,15,2"/>
+      </state_glyph>
+     </state>
+     <!--${AOs::TimeBomb::SM::armed::wait4button}-->
+     <state name="wait4button">
+      <entry brief="GreenLED=ON">BSP_ledGreenOn();</entry>
+      <exit brief="GreenLED=OFF">BSP_ledGreenOff();</exit>
+      <!--${AOs::TimeBomb::SM::armed::wait4button::BUTTON_PRESSED}-->
+      <tran trig="BUTTON_PRESSED" target="../../2">
+       <action brief="blink_ctr=5;">me-&gt;blink_ctr = 5U;</action>
+       <tran_glyph conn="4,20,3,1,48,14,-16">
+        <action box="0,-2,16,4"/>
+       </tran_glyph>
+      </tran>
+      <state_glyph node="4,10,32,14">
+       <entry box="1,2,15,2"/>
+       <exit box="1,4,15,2"/>
+      </state_glyph>
+     </state>
+     <state_glyph node="2,4,54,80">
+      <exit box="1,2,13,2"/>
+     </state_glyph>
+    </state>
+    <!--${AOs::TimeBomb::SM::defuse}-->
+    <state name="defuse">
+     <entry brief="BlueLED=ON;">BSP_ledBlueOn();</entry>
+     <exit brief="BlueLED=OFF;">BSP_ledBlueOff();</exit>
+     <!--${AOs::TimeBomb::SM::defuse::BUTTON2_PRESSED}-->
+     <tran trig="BUTTON2_PRESSED" target="../../1">
+      <tran_glyph conn="72,25,2,1,17,-16">
+       <action box="-16,15,16,2"/>
+      </tran_glyph>
+     </tran>
+     <state_glyph node="60,12,19,13">
+      <entry box="1,2,13,2"/>
+      <exit box="1,4,14,2"/>
+     </state_glyph>
+    </state>
+    <state_diagram size="80,84"/>
+   </statechart>
+  </class>
+  <!--${AOs::Timebomb_ctor}-->
+  <operation name="Timebomb_ctor" type="void" visibility="0x00" properties="0x00">
+   <documentation>The Timebomb &quot;constructor&quot; is provided outside of the Timebomb class, so that it can be used independently from the class. This is part of the &quot;opaque pointer&quot; design idiom.</documentation>
+   <code>Timebomb *me = (Timebomb *)AO_Timebomb;
+QActive_ctor(&amp;me-&gt;super, Q_STATE_CAST(&amp;Timebomb_initial));
+QTimeEvt_ctorX(&amp;me-&gt;timeEvt, &amp;me-&gt;super, TIMEOUT_SIG, 0U);</code>
+  </operation>
+ </package>
+ <!--${.}-->
+ <directory name=".">
+  <!--${.::main.c}-->
+  <file name="main.c">
+   <text>/* TimeBomb/Button with QP/M framework development. */
+//    2/5/2022;ARS
+/* ReadySet is needed to make the scheduler run the highest priority task first 
+   when it has an event waiting.  Its implementation is NECESSARY. */
+//#define QF_MAX_TICK_RATE        1
+//#define QF_TIMEEVT_CTR_SIZE     2
+//#undef QF_TIMEEVT_PERIODIC
+//#undef QF_TIMEEVT_USAGE             // Sleep mode is not used 
+// +Hsm/Q_PARAM_SIZE=2/X       : MPLAB Usage: Program: 4244/8192 (51.8%), Data: 157/1024 (15.3%) */
+// +Hsm/Q_PARAM_SIZE=0/X       : MPLAB Usage: Program: 4003/8192 (48.9%), Data: 116/1024 (11.3%) */
+
+//    2/9/2022;ARS
+/* Moved the message event inside the State machine structure to rendezvous with QM/QPN for closely. */
+//#define QF_MAX_TICK_RATE        1
+//#define QF_TIMEEVT_CTR_SIZE     2
+//#undef QF_TIMEEVT_PERIODIC
+//#undef QF_TIMEEVT_USAGE             // Sleep mode is not used 
+// +Hsm/Q_PARAM_SIZE=2/X       : MPLAB Usage: Program: 4450/8192 (54.3%), Data: 174/1024 (17.0%) */
+// +Hsm/Q_PARAM_SIZE=0/X       : MPLAB Usage: Program: 4309/8192 (52.6%), Data: 124/1024 (12.1%) */
+
+//2/15/2022 11:47:30 AM;ARS- Implemented changes below:
+//* Move the init, dispatch, &amp; postISR to reference Vtable function pointers and condense.
+//* Move the post to reference Vtable function pointers &amp; consolidate the results:
+//* Modify/Test TimeBomb to post a message outside the ISR
+//* Modify/Test TimeBomb to test QActive_disarmX
+//* &quot;Backfill&quot; the remaining post &amp; param != 0 functions {QACTIVE_POST_X_ISR(P=0), QACTIVE_POST_X(P=0), QACTIVE_POST_X_ISR(P!=0), QACTIVE_POST_X(P!=0)}
+//2/15/2022 1:50:53 PM;ARS- * Test QF_MARGIN: tested that QACTIVE_POST_X with &amp; without PAR returned true &amp; false with appropriate margin values.
+//2/15/2022 2:06:24 PM;ARS- * Tested QACTIVE_POST_X_ISR to throw an assertion failure using QF_NO_MARGIN by stuffing the queue with BUTTON_PRESSED_SIG.
+//2/15/2022 4:26:34 PM;ARS- * Test Event timer arm/disarm: Pass
+//2/15/2022 4:26:48 PM;ARS- * Test QF_TIMEEVT_PERIODIC: Pass
+//2/15/2022 4:36:09 PM;ARS- * Test QF_TIMEEVT_USAGE:Pass, appeared to work for one time under test.
+/* 2/16/2022 4:53:12 PM;ARS- * Investigate bool return for post/postISR macros 
+for VTable.  Made a global variable, QACTIVE_POST_res_, to capture the 
+QACTIVE_POST results allowing them to be tested for success or failure.  This 
+is needed when MARGIN values are actually used. */
+//c90:
+//#define QF_MAX_TICK_RATE    1
+//#define QF_TIMEEVT_CTR_SIZE 2
+//#undef QF_TIMEEVT_PERIODIC
+//#undef QF_TIMEEVT_USAGE
+//#define QF_MARGIN           0   // 0xFF- QF_NO_MARGIN, 0- no margin function calls
+//#undef USE_FULL_TEST            // undef- no extra test code
+// +QPN/Q_PARAM_SIZE=0/Vtable  : MPLAB Usage: Program: 4445/8192 (54.3%), Data: 143/1024 (14.0%)
+// +QPN/Q_PARAM_SIZE=0/NoVtable: MPLAB Usage: Program: 4392/8192 (53.6%), Data: 131/1024 (12.8%)
+// +Hsm/Q_PARAM_SIZE=0/X       : MPLAB Usage: Program: 4239/8192 (51.7%), Data: 126/1024 (12.3%)
+// +QPN/Q_PARAM_SIZE=2/Vtable  : MPLAB Usage: Program: 4610/8192 (56.3%), Data: 169/1024 (16.5%)
+// +QPN/Q_PARAM_SIZE=2/NoVtable: MPLAB Usage: Program: 4657/8192 (56.8%), Data: 157/1024 (15.3%)
+// +Hsm/Q_PARAM_SIZE=2/X       : MPLAB Usage: Program: 4275/8192 (52.2%), Data: 168/1024 (16.4%)
+// +QPN/Q_PARAM_SIZE=4/Vtable  : MPLAB Usage: Program: 4703/8192 (57.4%), Data: 197/1024 (19.2%)
+// +QPN/Q_PARAM_SIZE=4/NoVtable: MPLAB Usage: Program: 4618/8192 (56.4%), Data: 185/1024 (18.1%)
+// +Hsm/Q_PARAM_SIZE=4/X       : MPLAB Usage: Program: 4314/8192 (52.7%), Data: 212/1024 (20.7%)
+//c99:
+//#define QF_MAX_TICK_RATE    1
+//#define QF_TIMEEVT_CTR_SIZE 2
+//#undef QF_TIMEEVT_PERIODIC
+//#undef QF_TIMEEVT_USAGE
+//#define QF_MARGIN           0   // 0xFF- QF_NO_MARGIN, 0- no margin function calls
+//#undef USE_FULL_TEST            // undef- no extra test code
+// +QPN/Q_PARAM_SIZE=0/Vtable  : MPLAB Usage: Program: 4554/8192 (55.7%), Data: 145/1024 (14.2%)
+// +QPN/Q_PARAM_SIZE=0/NoVtable: MPLAB Usage: Program: 4554/8192 (55.6%), Data: 134/1024 (13.1%)
+// +Hsm/Q_PARAM_SIZE=0/X       : MPLAB Usage: Program: 4290/8192 (52.4%), Data: 128/1024 (12.5%)
+// +QPN/Q_PARAM_SIZE=2/Vtable  : MPLAB Usage: Program: 4720/8192 (57.6%), Data: 171/1024 (16.7%)
+// +QPN/Q_PARAM_SIZE=2/NoVtable: MPLAB Usage: Program: 4533/8192 (55.3%), Data: 159/1024 (15.5%)
+// +Hsm/Q_PARAM_SIZE=2/X       : MPLAB Usage: Program: 4340/8192 (53.0%), Data: 170/1024 (16.6%)
+// +QPN/Q_PARAM_SIZE=4/Vtable  : MPLAB Usage: Program: 4752/8192 (58.0%), Data: 199/1024 (19.4%)
+// +QPN/Q_PARAM_SIZE=4/NoVtable: MPLAB Usage: Program: 4545/8192 (55.5%), Data: 187/1024 (18.3%)
+// +Hsm/Q_PARAM_SIZE=4/X       : MPLAB Usage: Program: 4424/8192 (54.0%), Data: 214/1024 (20.9%)
+
+#include &quot;bsp.h&quot;
+#include &quot;qfn_port.h&quot;
+#include &quot;qassert.h&quot;
+
+#warning ----------------   Build Configuration   ----------------
+#if   (defined XPRJ_Hsm)
+    #warning Hsm/
+#elif (defined XPRJ_QPN)
+    #warning QPN/
+#endif  //  #if   (defined XPRJ_Hsm)
+
+#if (defined NO_QActiveVtable)
+    #warning NoVTable/
+#else
+    #warning VTable  /
+#endif  //  #if (defined NO_QActiveVtable)
+
+#if   (Q_PARAM_SIZE == 0)
+    #warning PARAM_SIZE=0:
+#elif (Q_PARAM_SIZE == 2)
+    #warning PARAM_SIZE=2:
+#elif (Q_PARAM_SIZE == 4)
+    #warning PARAM_SIZE=4:
+#else
+    #warning PARAM_SIZE=ERROR:
+#endif  //  #if   (Q_PARAM_SIZE == 0)
+#warning ----------------   Build Configuration   ----------------
+
+
+/* Active objects... */
+extern QActive *AO_TimeBomb;
+
+Q_DEFINE_THIS_MODULE(&quot;main_Hsm&quot;) /* this module name for Q_ASSERT() */
+
+/* The TimeBomb AO =======================================================*/
+$declare${AOs::TimeBomb}
+
+$define${AOs::TimeBomb}
+
+static QEvt timeBomb_queue[TIMEBOMB_QUEUE_LEN];
+static TimeBomb timeBomb;
+QActive *AO_TimeBomb = &amp;timeBomb.super;
+
+/* QF_active[] array defines all active object control blocks ----*/
+QActiveCB const Q_ROM Q_ROM_VAR QF_active[] = {
+    { (QActive *)0              , (QEvt *)0             , 0                     },
+    { (QActive *)&amp;timeBomb.super, (QEvt *)timeBomb_queue, Q_DIM(timeBomb_queue) },
+};
+
+/* make sure that the QF_active[] array matches QF_MAX_ACTIVE in qpn_port.h */
+Q_ASSERT_COMPILE(1U == Q_DIM(QF_active) - 1U);
+
+/* the main function =========================================================*/
+int main() {
+
+    BSP_init(); /* initialize the BSP */
+    QF_init(Q_DIM(QF_active));   /* initialize QP/C */
+
+    /* create AO and start it */
+    TimeBomb_ctor(&amp;timeBomb);
+
+    QF_run(); /* run QP/C... */
+    return 0; /* NOTE: the scheduler does NOT return */
+}
+
+</text>
+  </file>
+ </directory>
+</model>

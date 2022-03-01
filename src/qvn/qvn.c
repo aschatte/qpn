@@ -63,6 +63,7 @@ Q_DEFINE_THIS_MODULE("qvn")
 */
 int_t QF_run(void) {
     uint_fast8_t p;
+    QActiveCB const Q_ROM *acb; // Hsm implementation
     QActive *a;
 
 #ifdef QF_MAX_ACTIVE /* deprecated constant provided? */
@@ -90,6 +91,7 @@ int_t QF_run(void) {
 
     /* trigger initial transitions in all registered active objects... */
     for (p = 1U; p <= QF_maxActive_; ++p) {
+        acb = &QF_active[p];    // Hsm implementation
         a = QF_ROM_ACTIVE_GET_(p);
         QHSM_INIT(&a->super); /* take the initial transition in the SM */
     }
@@ -100,14 +102,12 @@ int_t QF_run(void) {
     QF_INT_DISABLE();
     for (;;) {
         if (QF_readySet_ != 0U) {
-            QActiveCB const Q_ROM *acb;
-
 #ifdef QF_LOG2
             p = QF_LOG2(QF_readySet_);
 #else
             /* hi nibble non-zero? */
             if ((QF_readySet_ & 0xF0U) != 0U) {
-                p = (uint_fast8_t)Q_ROM_BYTE(QF_log2Lkup[QF_readySet_ >> 4])
+                p = (uint_fast8_t)Q_ROM_BYTE(QF_log2Lkup[(uint_fast8_t)(QF_readySet_ >> 4U)])
                       + 4U;
             }
             else { /* hi nibble of QF_readySet_ is zero */
