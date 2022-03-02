@@ -14,6 +14,10 @@ your policy.
 and support and is **not recommended** for new designs. This QP-nano
 repository is preserved for the existing user base.
 
+[QP-nanoPIC16] is an adaptation of the QP-nano framework to the Microchip PIC16
+architecture as compiled by the MPALB-X IDE using the XC8 compiler (C90/C99).
+It allows QP-nano models developed using the QM modeling tool to be integrated
+with the QV-nano kernel to build [Active Object] applications.
 
 ---------------------------------------------------------------------------
 # Documentation
@@ -71,7 +75,7 @@ completely replacing a traditional "superloop" or an RTOS. The framework
 contains a selection of **built-in real-time kernels**, such as the
 cooperative QV-nano kernel and the preemptive non-blocking QK-nano kernel.
 Native QP-nano ports and ready-to-use examples are provided for such CPUs
-MSP430, AVRmega, and ARM Cortex-M (M0/M0+/M3/M4).
+PIC16, MSP430, AVRmega, and ARM Cortex-M (M0/M0+/M3/M4).
 
 ## Maturity
 With 60,000 downloads a year, the [QP] family is the most popular such
