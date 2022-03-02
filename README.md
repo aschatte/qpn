@@ -17,7 +17,7 @@ repository is preserved for the existing user base.
 [QP-nanoPIC16] is an adaptation of the QP-nano framework to the Microchip PIC16
 architecture as compiled by the MPALB-X IDE using the XC8 compiler (C90/C99).
 It allows QP-nano models developed using the QM modeling tool to be integrated
-with the QV-nano kernel to build [Active Object] applications.
+with the QV-nano kernel to build [Active Object] based applications.
 
 ---------------------------------------------------------------------------
 # Documentation
