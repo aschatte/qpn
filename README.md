@@ -14,7 +14,7 @@ your policy.
 and support and is **not recommended** for new designs. This QP-nano
 repository is preserved for the existing user base.
 
-QPN-PIC16 is an adaptation of the [QP-nano] framework to the Microchip PIC16
+[QPN-PIC16] is an adaptation of the [QP-nano] framework to the Microchip PIC16
 architecture as compiled by the MPALB-X IDE using the XC8 compiler (C90/C99).
 It allows [QP-nano] models developed using the QM modeling tool to be integrated
 with the QV-nano kernel to build [active objects][Active] applications.
@@ -107,7 +107,7 @@ you don't use any open source license and you do not violate your policy.
 The **QP-nano Manual** is located online at: https://www.state-machine.com/qpn
 
 ---------------------------------------------------------------------------
-# QPN-PIC16
+# [QPN-PIC16](https://github.com/aschatte/qpn)
 [QPN-PIC16] is an adaptation of the QP-nano framework to the Microchip PIC16
 architecture as compiled by the MPALB-X IDE using the XC8 compiler (C90/C99).
 It allows QP-nano models developed using the QM modeling tool to be integrated
@@ -116,8 +116,8 @@ limited resources of the PIC16 family of MCUs, primarily the hardware stack,
 required a special version of QP-nano and a QM-Modeler editing post-processor, 
 QM2HSM.exe, to effect.  
 
-## QPN-PIC16 Implementation
-The QPN-PIC16 firmware was developed directly from the QP-nano firmware with 
+## [QPN-PIC16] Implementation
+The [QPN-PIC16] firmware was developed directly from the QP-nano firmware with 
 changes implemented as needed to allow the MPLAB-X IDE using the XC8 (C90/C99)
 compiler to build working firmware in the target PIC16 MCU.  Complications
 were encountered prilarily in pointers to compound function arguments and 
@@ -130,35 +130,35 @@ variable QACTIVE_POST_res_ is provided for this return value and is useful for
 the QACTIVE_POST_X macros where any value but QF_NO_MARGIN is specified for a 
 posting margin.
 
-## QPN-PIC16 Configuration
-QPN-PIC16 is configured the same as a normal QP-nano application with several
+## [QPN-PIC16] Configuration
+[QPN-PIC16] is configured the same as a normal QP-nano application with several
 additions to the qpn_conf.h file to control the build configuration and include
 MPLAB-X, XC8 header files.
 
-1.  The QPN-PIC16 build is controlled by three preprocessor switches, one of 
+1.  The [QPN-PIC16] build is controlled by three preprocessor switches, one of 
 which **must** be defined:
 
-- XPRJ_Hsm: A minimalist implementation completely replacing the QEPN state
-machine implementation, but keeping some parts of the QACTIVE framework.
+	- XPRJ_Hsm: A minimalist implementation completely replacing the QEPN state
+	machine implementation, but keeping some parts of the QACTIVE framework.
 
-- XPRJ_QPN_NoVtables: the full QEPN state-machine and QACTIVE framework but
-with fixed functions for init, dispatch, post, and postISR
+	- XPRJ_QPN_NoVtables: the full QEPN state-machine and QACTIVE framework but
+	with fixed functions for init, dispatch, post, and postISR
 
-- XPRJ_QPN_Vtables: the full QEP state-machine and QACTIVE framework, including
-the virtual handler tables for init, dispatch, post, and postISR.  The static
-and hidden nature of these tables was compromised to a global, visible set of
-tables for the XC8 compiler.
+	- XPRJ_QPN_Vtables: the full QEP state-machine and QACTIVE framework, including
+	the virtual handler tables for init, dispatch, post, and postISR.  The static
+	and hidden nature of these tables was compromised to a global, visible set of
+	tables for the XC8 compiler.
 
-> **NOTE:** The TimeBomb example has MPLAB-X set up with these build 
-configurations selectable using the IDE which automatically defines the 
-appropriate macro.  In lieu of this, the desired macro may be set in the 
-qpn_conf.h file.
+	> **NOTE:** The TimeBomb example has MPLAB-X set up with these build 
+	configurations selectable using the IDE which automatically defines the 
+	appropriate macro.  In lieu of this, the desired macro may be set in the 
+	qpn_conf.h file.
 
 2.  MPLAB-X XC compilers require that the xc.h header file be included in all 
 source files.  This is done directly at the top of the qpn_conf.h file.
 
 ## QM-Modeler Integration
-QPN-PIC16 models are developed using QM-Modeler exactly as they are for any 
+[QPN-PIC16] models are developed using QM-Modeler exactly as they are for any 
 other QP-nano application.  The final step, "Generate Code" is handled by
 an External Tool, QM2HSM.exe, instead of the "Generate Code" tool button.
 The QM2HSM.exe is installed as an External Tool in the QM-Modeler and it is 
@@ -167,12 +167,12 @@ targetted to the MPLAB-X, XC8 (C90/C99) compiler for the Microchip PIC family
 of MCUs.  The "Generate Code" button can still be used to generate QM model 
 code for other target MCUs from the same model, if desired.  Please refer to
 the \examples\pic16\timebomb_dm164130-9\README.txt for more information on how
-to set up and use the QM-Modeler tools to generate QPN-PIC16 files. The example, 
+to set up and use the QM-Modeler tools to generate [QPN-PIC16] files. The example, 
 \examples\pic16\timebomb_dm164130-9\TimeBomb.qm, is provided as a working 
 demonstration of the tools, development workflow, and operating result for the
 Microchip DM164130-9 Demo Board with the PIC161829 MCU.
 
-## QPN-PIC16 Footprint
+## [QPN-PIC16] Footprint
 The TimeBomb example application was tested for the XC8, PIC16F1829, and the 
 specified configurations:
 
@@ -217,7 +217,7 @@ undef USE_FULL_TEST            // undef- no extra test code<br>
 These measurements indicate that the TimeBomb application would fit into a 
 PIC16F88<6,7>, also.
 
-## QPN-PIC16 Getting Started
+## [QPN-PIC16] Getting Started
 Following the enbedded software dictum: "nothing works until everything works",
 it is recommended that the TimeBomb project for the Microchip DM164130-9 deno
 board using the PIC16F1829 MCU be used as a starting point.  The <br>
@@ -275,12 +275,12 @@ necessary to ensure that all the appropriate source/header files aree properly
 referenced by the MPLAB-X IDE for the new project location.  A good maxim is to
 make small, incremental changes and check your work frequently.
 
-## QPN-PIC16 Licensing
-QPN-PIC16 is licensed in the same way as QP-nano, above.
+## [QPN-PIC16] Licensing
+[QPN-PIC16] is licensed in the same way as QP-nano, above.
 
-## QPN-PIC16 Documentation
+## [QPN-PIC16] Documentation
 The **QP-nano Manual** is located online at: https://www.state-machine.com/qpn
-and can be used for QPN-PIC16.
+and can be used for [QPN-PIC16].
 
 ---------------------------------------------------------------------------
 # How to get help?
@@ -301,3 +301,5 @@ and can be used for QPN-PIC16.
    [HSM]: <https://www.state-machine.com/doc/concepts#HSM>
    [Lic]: <https://www.state-machine.com/licensing>
    [AN]: <https://www.state-machine.com/doc/AN_Getting_Started_with_QP-nano.pdf>
+   [QPN-PIC16]: <https://github.com/aschatte/qpn)>
+   
