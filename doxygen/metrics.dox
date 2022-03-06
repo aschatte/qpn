@@ -1,51 +1,6 @@
-/** @page metrics Code Metrics
+/** @page metrics Code Metrics 
 
-@code{cpp}
-                   Code Metrics for QP-nano
-================================================
-  NLOC    CCN   token  PARAM  length  location
-------------------------------------------------
-       9      1     48      2       9 QHsm_ctor@84-92@..\src\qfn\qepn.c
-      33      6    258      1      49 QHsm_init_@105-153@..\src\qfn\qepn.c
-       4      1     18      1       4 QHsm_top@172-175@..\src\qfn\qepn.c
-      62     11    434      1      88 QHsm_dispatch_@190-277@..\src\qfn\qepn.c
-      98     15    524      2     132 QHsm_tran_@292-423@..\src\qfn\qepn.c
-      23      4    117      2      31 QHsm_childState_@450-480@..\src\qfn\qepn.c
-      10      1     54      2      20 QActive_ctor@99-118@..\src\qfn\qfn.c
-      41     10    229      3      59 QActive_postX_@146-204@..\src\qfn\qfn.c
-      41     14    228      3      69 QActive_postXISR_@232-300@..\src\qfn\qfn.c
-      29     13    197      1      58 QF_init@315-372@..\src\qfn\qfn.c
-      20      8    143      1      31 QF_tickXISR@398-428@..\src\qfn\qfn.c
-       9      3     65      3      16 QActive_armX@465-480@..\src\qfn\qfn.c
-       7      3     66      2      13 QActive_disarmX@495-507@..\src\qfn\qfn.c
-      22      7    142      1      41 initialize@69-109@..\src\qkn\qkn.c
-       8      3     28      1      12 QF_run@121-132@..\src\qkn\qkn.c
-      15      2     79      1      22 QK_schedLock@161-182@..\src\qkn\qkn.c
-      15      4     96      1      28 QK_schedUnlock@200-227@..\src\qkn\qkn.c
-      21      6    124      1      33 QK_sched_@247-279@..\src\qkn\qkn.c
-      52     14    349      1      94 QK_activate_@291-384@..\src\qkn\qkn.c
-      52     14    337      1      97 QF_run@64-160@..\src\qvn\qvn.c
-11 file analyzed.
-==============================================================
-NLOC    Avg.NLOC  AvgCCN  Avg.token  function_cnt    file
---------------------------------------------------------------
-      5       0.0     0.0        0.0         0     ..\include\qassert.h
-     35       0.0     0.0        0.0         0     ..\include\qepn.h
-     56       0.0     0.0        0.0         0     ..\include\qfn.h
-     15       0.0     0.0        0.0         0     ..\include\qkn.h
-      8       0.0     0.0        0.0         0     ..\include\qpn.h
-      4       0.0     0.0        0.0         0     ..\include\qstamp.c
-      2       0.0     0.0        0.0         0     ..\include\qvn.h
-    236      38.2     6.3      233.2         6     ..\src\qfn\qepn.c
-    174      22.4     7.4      140.3         7     ..\src\qfn\qfn.c
-    139      22.2     6.0      136.3         6     ..\src\qkn\qkn.c
-     56      52.0    14.0      337.0         1     ..\src\qvn\qvn.c
-
-=============================================================================================================
-No thresholds exceeded (cyclomatic_complexity > 20 or length > 500 or nloc > 1000000 or parameter_count > 10)
-==========================================================================================
-Total nloc   Avg.NLOC  AvgCCN  Avg.token   Fun Cnt  Warning cnt   Fun Rt   nloc Rt
-------------------------------------------------------------------------------------------
-       730      28.6     7.0      176.8       20            0      0.00    0.00
-@endcode
-*/
+@code{cpp} 
+                   Code Metrics for QP-nano 
+@endcode 
+*/ 

@@ -51,21 +51,22 @@
 for VTable.  Made a global variable, QACTIVE_POST_res_, to capture the
 QACTIVE_POST results allowing them to be tested for success or failure.  This
 is needed when MARGIN values are actually used. */
+//c90:
 //#define QF_MAX_TICK_RATE    1
 //#define QF_TIMEEVT_CTR_SIZE 2
 //#undef QF_TIMEEVT_PERIODIC
 //#undef QF_TIMEEVT_USAGE
 //#define QF_MARGIN           0   // 0xFF- QF_NO_MARGIN, 0- no margin function calls
 //#undef USE_FULL_TEST            // undef- no extra test code
-// +QPN/Q_PARAM_SIZE=0/Vtable  : MPLAB Usage: Program: 4443/8192 (54.2%), Data: 142/1024 (13.9%)
-// +QPN/Q_PARAM_SIZE=0/NoVtable: MPLAB Usage: Program: 4429/8192 (54.5%), Data: 130/1024 (12.7%)
-// +Hsm/Q_PARAM_SIZE=0/X       : MPLAB Usage: Program: 4216/8192 (51.5%), Data: 126/1024 (12.3%)
-// +QPN/Q_PARAM_SIZE=2/Vtable  : MPLAB Usage: Program: 4610/8192 (56.3%), Data: 168/1024 (16.4%)
-// +QPN/Q_PARAM_SIZE=2/NoVtable: MPLAB Usage: Program: 4707/8192 (57.5%), Data: 156/1024 (15.2%)
-// +Hsm/Q_PARAM_SIZE=2/X       : MPLAB Usage: Program: 4320/8192 (52.7%), Data: 167/1024 (16.3%)
-// +QPN/Q_PARAM_SIZE=4/Vtable  : MPLAB Usage: Program: 4703/8192 (57.4%), Data: 196/1024 (19.1%)
-// +QPN/Q_PARAM_SIZE=4/NoVtable: MPLAB Usage: Program: 4666/8192 (57.8%), Data: 184/1024 (18.0%)
-// +Hsm/Q_PARAM_SIZE=4/X       : MPLAB Usage: Program: 4314/8192 (52.7%), Data: 211/1024 (20.6%)
+// +QPN/Q_PARAM_SIZE=0/Vtable  : MPLAB Usage: Program: 4445/8192 (54.3%), Data: 143/1024 (14.0%)
+// +QPN/Q_PARAM_SIZE=0/NoVtable: MPLAB Usage: Program: 4392/8192 (53.6%), Data: 131/1024 (12.8%)
+// +Hsm/Q_PARAM_SIZE=0/X       : MPLAB Usage: Program: 4239/8192 (51.7%), Data: 126/1024 (12.3%)
+// +QPN/Q_PARAM_SIZE=2/Vtable  : MPLAB Usage: Program: 4610/8192 (56.3%), Data: 169/1024 (16.5%)
+// +QPN/Q_PARAM_SIZE=2/NoVtable: MPLAB Usage: Program: 4657/8192 (56.8%), Data: 157/1024 (15.3%)
+// +Hsm/Q_PARAM_SIZE=2/X       : MPLAB Usage: Program: 4275/8192 (52.2%), Data: 168/1024 (16.4%)
+// +QPN/Q_PARAM_SIZE=4/Vtable  : MPLAB Usage: Program: 4703/8192 (57.4%), Data: 197/1024 (19.2%)
+// +QPN/Q_PARAM_SIZE=4/NoVtable: MPLAB Usage: Program: 4618/8192 (56.4%), Data: 185/1024 (18.1%)
+// +Hsm/Q_PARAM_SIZE=4/X       : MPLAB Usage: Program: 4314/8192 (52.7%), Data: 212/1024 (20.7%)
 //c99:
 //#define QF_MAX_TICK_RATE    1
 //#define QF_TIMEEVT_CTR_SIZE 2
@@ -73,15 +74,15 @@ is needed when MARGIN values are actually used. */
 //#undef QF_TIMEEVT_USAGE
 //#define QF_MARGIN           0   // 0xFF- QF_NO_MARGIN, 0- no margin function calls
 //#undef USE_FULL_TEST            // undef- no extra test code
-// +QPN/Q_PARAM_SIZE=0/Vtable  : MPLAB Usage: Program: 4560/8192 (55.7%), Data: 144/1024 (14.1%)
-// +QPN/Q_PARAM_SIZE=0/NoVtable: MPLAB Usage: Program: 4481/8192 (54.7%), Data: 132/1024 (12.9%)
-// +Hsm/Q_PARAM_SIZE=0/X       : MPLAB Usage: Program: 4309/8192 (52.6%), Data: 128/1024 (12.5%)
-// +QPN/Q_PARAM_SIZE=2/Vtable  : MPLAB Usage: Program: 4726/8192 (57.7%), Data: 170/1024 (16.6%)
-// +QPN/Q_PARAM_SIZE=2/NoVtable: MPLAB Usage: Program: 4720/8192 (57.6%), Data: 158/1024 (15.4%)
-// +Hsm/Q_PARAM_SIZE=2/X       : MPLAB Usage: Program: 4346/8192 (53.1%), Data: 169/1024 (16.5%)
-// +QPN/Q_PARAM_SIZE=4/Vtable  : MPLAB Usage: Program: 4758/8192 (58.1%), Data: 198/1024 (19.3%)
-// +QPN/Q_PARAM_SIZE=4/NoVtable: MPLAB Usage: Program: 4551/8192 (55.6%), Data: 186/1024 (18.2%)
-// +Hsm/Q_PARAM_SIZE=4/X       : MPLAB Usage: Program: 4459/8192 (54.4%), Data: 213/1024 (20.7%)
+// +QPN/Q_PARAM_SIZE=0/Vtable  : MPLAB Usage: Program: 4554/8192 (55.7%), Data: 145/1024 (14.2%)
+// +QPN/Q_PARAM_SIZE=0/NoVtable: MPLAB Usage: Program: 4554/8192 (55.6%), Data: 134/1024 (13.1%)
+// +Hsm/Q_PARAM_SIZE=0/X       : MPLAB Usage: Program: 4290/8192 (52.4%), Data: 128/1024 (12.5%)
+// +QPN/Q_PARAM_SIZE=2/Vtable  : MPLAB Usage: Program: 4720/8192 (57.6%), Data: 171/1024 (16.7%)
+// +QPN/Q_PARAM_SIZE=2/NoVtable: MPLAB Usage: Program: 4533/8192 (55.3%), Data: 159/1024 (15.5%)
+// +Hsm/Q_PARAM_SIZE=2/X       : MPLAB Usage: Program: 4340/8192 (53.0%), Data: 170/1024 (16.6%)
+// +QPN/Q_PARAM_SIZE=4/Vtable  : MPLAB Usage: Program: 4752/8192 (58.0%), Data: 199/1024 (19.4%)
+// +QPN/Q_PARAM_SIZE=4/NoVtable: MPLAB Usage: Program: 4545/8192 (55.5%), Data: 187/1024 (18.3%)
+// +Hsm/Q_PARAM_SIZE=4/X       : MPLAB Usage: Program: 4424/8192 (54.0%), Data: 214/1024 (20.9%)
 
 #include "bsp.h"
 #include "qfn_port.h"

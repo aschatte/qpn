@@ -339,7 +339,7 @@ ono";
 color:yellow'>/<span
 style=3D'mso-spacerun:yes'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span>- QP-[micro] installation directory<o:p></o:p></span></p>
+</span>- QPN-PIC16 installation directory<o:p></o:p></span></p>
 
 <p class=3DMsoNormal style=3D'margin-left:39.75pt;text-indent:-39.75pt;line=
 -height:
@@ -348,7 +348,7 @@ y:
 "JetBrains Mono";color:yellow'><span
 style=3D'mso-spacerun:yes'>&nbsp;</span>+-examples/<span
 style=3D'mso-spacerun:yes'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </spa=
-n>- QP-[micro]
+n>- QPN-PIC16
 examples directory (application)<o:p></o:p></span></p>
 
 <p class=3DMsoNormal style=3D'margin-left:39.75pt;text-indent:-39.75pt;line=
@@ -362,7 +362,7 @@ ains Mono";
 color:yellow'>pic16/<span
 style=3D'mso-spacerun:yes'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </spa=
 n><span
-style=3D'mso-spacerun:yes'>&nbsp;</span>- QP-[micro] examples for Microchip
+style=3D'mso-spacerun:yes'>&nbsp;</span>- QPN-PIC16 examples for Microchip
 PIC16F1829<o:p></o:p></span></p>
 
 <p class=3DMsoNormal style=3D'margin-left:39.75pt;text-indent:-39.75pt;line=
@@ -460,7 +460,7 @@ rgin-bottom-alt:
      auto;line-height:16.5pt;mso-list:l0 level1 lfo2;tab-stops:list .5in;
      background:black'><span style=3D'font-size:11.5pt;font-family:"Segoe U=
 I"'>cooperative
-     QV-[micro] kernel<o:p></o:p></span></li>
+     QV-PIC16 kernel<o:p></o:p></span></li>
  <ul type=3Dcircle>
   <li class=3DMsoNormal style=3D'color:yellow;mso-margin-top-alt:auto;mso-m=
 argin-bottom-alt:

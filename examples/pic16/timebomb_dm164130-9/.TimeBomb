@@ -20,7 +20,7 @@
   <group name="tool">
    <item name="icon">0</item>
    <item name="title">QModeler to PIC16 HSM conversion</item>
-   <item name="command">C:\qp\qpm\qtools\bin\QM2HSM.exe</item>
+   <item name="command">..\..\..\qtools\bin\QM2HSM.exe</item>
    <item name="args">${ModelFile}</item>
    <item name="dir">.</item>
    <item name="options">1</item>
